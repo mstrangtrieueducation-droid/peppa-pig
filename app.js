@@ -15,12 +15,6 @@ function driveViewUrl(id) {
   return `https://drive.google.com/file/d/${id}/view?usp=sharing`;
 }
 
-function embeddedFormUrl(url) {
-  const formUrl = new URL(url);
-  formUrl.searchParams.set("embedded", "true");
-  return formUrl.toString();
-}
-
 function loadInlinePlayer(shell) {
   if (shell.querySelector("iframe")) return;
   const iframe = document.createElement("iframe");
@@ -88,10 +82,6 @@ function stepCard(number, title, text, bullets, driveId, videoTitle, accent = ""
 
 function renderLesson(lesson) {
   const e = escapeHTML;
-  const useInlineForm = lesson.number === "01";
-  const submitLink = useInlineForm
-    ? `href="#google-form"`
-    : `href="${e(lesson.form)}" target="_blank" rel="noopener noreferrer"`;
   document.title = `Peppa ${lesson.number} · ${lesson.title}`;
   document.querySelector('meta[name="description"]').content =
     `Peppa Pig English Video ${lesson.number} – ${lesson.title}.`;
@@ -128,7 +118,7 @@ function renderLesson(lesson) {
 
       <div class="submit-card">
         <div><h2>Nộp video lồng tiếng</h2><p>Con quay rõ màn hình, để âm thanh đủ lớn và nộp đúng bài <strong>${e(lesson.code)}</strong>. Tên tiếng Anh, lớp và mã lớp cần được ghi chính xác trong biểu mẫu.</p></div>
-        <a ${submitLink}>Nộp bài ${e(lesson.code)} →</a>
+        <a href="${e(lesson.form)}" target="_blank" rel="noopener noreferrer">Nộp bài ${e(lesson.code)} →</a>
       </div>
     </section>
 
@@ -149,22 +139,9 @@ function renderLesson(lesson) {
       </div>
       <div class="submit-card">
         <div><h2>Sẵn sàng quay bài?</h2><p>Kiểm tra âm thanh rõ, khung hình ổn định và nộp đúng mã <strong>${e(lesson.code)}</strong>.</p></div>
-        <a ${submitLink}>Nộp bài ${e(lesson.code)} →</a>
+        <a href="${e(lesson.form)}" target="_blank" rel="noopener noreferrer">Nộp bài ${e(lesson.code)} →</a>
       </div>
-    </section>
-
-    ${useInlineForm ? `
-      <section class="form-section container" id="google-form">
-        <div class="form-heading">
-          <p class="eyebrow">Nộp bài ngay tại đây</p>
-          <h2>Google Form · ${e(lesson.code)}</h2>
-          <p>Điền thông tin, chọn video và bấm <strong>Gửi</strong> trong biểu mẫu bên dưới. Mã bài đã được điền sẵn.</p>
-        </div>
-        <div class="google-form-shell">
-          <iframe src="${e(embeddedFormUrl(lesson.form))}" title="Google Form nộp bài ${e(lesson.code)}" loading="lazy" allow="camera; microphone">Đang tải Google Form…</iframe>
-        </div>
-        <p class="form-fallback">Nếu thiết bị không hiển thị phần tải video, <a href="${e(lesson.form)}" target="_blank" rel="noopener noreferrer">mở Google Form riêng</a>.</p>
-      </section>` : ""}`;
+    </section>`;
 
   document.querySelectorAll(".tab-button").forEach((button) =>
     button.addEventListener("click", () => activateTab(button.dataset.tab)));
