@@ -8,3 +8,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 /* Force a Vietnamese-safe system font on submission buttons. */
 .submit-card>a{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif!important;font-style:normal!important;font-variant:normal!important;font-weight:800!important;letter-spacing:0!important}
+
+/* Keep every mobile video action in one Vietnamese-safe system font. */
+.video-link,.inline-button{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif!important;font-style:normal!important;font-variant:normal!important;font-weight:800!important;letter-spacing:0!important;text-rendering:optimizeLegibility}
