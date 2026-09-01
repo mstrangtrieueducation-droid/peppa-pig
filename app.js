@@ -1,5 +1,3 @@
-const MOBILE_QUERY = "(max-width: 900px), (pointer: coarse)";
-
 function escapeHTML(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -30,8 +28,19 @@ function loadInlinePlayer(shell) {
   iframe.title = shell.dataset.title;
   iframe.allow = "autoplay; encrypted-media; fullscreen";
   iframe.allowFullscreen = true;
-  iframe.loading = "lazy";
-  shell.replaceChildren(iframe);
+  iframe.loading = "eager";
+  const frame = document.createElement("div");
+  frame.className = "drive-frame";
+  frame.append(iframe);
+  const driveLink = document.createElement("a");
+  driveLink.className = "drive-open-link";
+  driveLink.href = driveViewUrl(shell.dataset.driveId);
+  driveLink.target = "_blank";
+  driveLink.rel = "noopener noreferrer";
+  driveLink.textContent = "Mở bằng Drive ↗";
+  driveLink.setAttribute("aria-label", `${shell.dataset.title} - mở bằng Google Drive`);
+  shell.classList.add("drive-player-shell");
+  shell.replaceChildren(frame, driveLink);
 }
 
 function loadSlowPlayer(shell) {
@@ -96,30 +105,7 @@ function renderVideo(shell) {
     loadSlowPlayer(shell);
     return;
   }
-  const mobile = window.matchMedia(MOBILE_QUERY).matches;
-  if (!mobile) {
-    loadInlinePlayer(shell);
-    return;
-  }
-  const card = document.createElement("div");
-  card.className = "video-fallback";
-  const title = document.createElement("strong");
-  title.textContent = shell.dataset.title;
-  const note = document.createElement("p");
-  note.textContent = "Trên điện thoại và iPad, con mở video trực tiếp để xem ổn định hơn.";
-  const link = document.createElement("a");
-  link.className = "video-link";
-  link.href = driveViewUrl(shell.dataset.driveId);
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  link.textContent = "▶ Mở video";
-  const button = document.createElement("button");
-  button.className = "inline-button";
-  button.type = "button";
-  button.textContent = "Thử phát ngay trong trang";
-  button.addEventListener("click", () => loadInlinePlayer(shell));
-  card.append(title, note, link, button);
-  shell.replaceChildren(card);
+  loadInlinePlayer(shell);
 }
 
 function activateTab(name) {
