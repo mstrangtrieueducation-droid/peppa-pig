@@ -35,6 +35,7 @@ function loadSlowPlayer(shell) {
   if (shell.querySelector("video")) return;
   const rate = Number(shell.dataset.playbackRate) || SLOW_PLAYBACK_RATE;
   const video = document.createElement("video");
+  video.crossOrigin = "anonymous";
   video.src = driveMediaUrl(shell.dataset.driveId);
   video.title = shell.dataset.title;
   video.controls = true;
