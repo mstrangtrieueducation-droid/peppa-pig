@@ -1,5 +1,6 @@
 const MOBILE_QUERY = "(max-width: 900px), (pointer: coarse)";
 const SLOW_PLAYBACK_RATE = 0.6;
+const MOBILE_MEDIA_LESSONS = new Set(["02"]);
 
 function escapeHTML(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({
@@ -20,6 +21,11 @@ function driveMediaUrl(id) {
   return `https://drive.usercontent.google.com/download?id=${encodeURIComponent(id)}&export=download&confirm=t`;
 }
 
+function mobileMediaUrl(number) {
+  if (!MOBILE_MEDIA_LESSONS.has(number)) return "";
+  return `${location.origin}/peppa-media/peppa-${number}.mp4?v=1`;
+}
+
 function loadInlinePlayer(shell) {
   if (shell.querySelector("iframe")) return;
   const iframe = document.createElement("iframe");
@@ -36,7 +42,7 @@ function loadSlowPlayer(shell) {
   const rate = Number(shell.dataset.playbackRate) || SLOW_PLAYBACK_RATE;
   const video = document.createElement("video");
   video.crossOrigin = "anonymous";
-  video.src = driveMediaUrl(shell.dataset.driveId);
+  video.src = shell.dataset.mediaUrl || driveMediaUrl(shell.dataset.driveId);
   video.title = shell.dataset.title;
   video.controls = true;
   video.playsInline = true;
@@ -56,13 +62,25 @@ function loadSlowPlayer(shell) {
     title.textContent = shell.dataset.title;
     const note = document.createElement("p");
     note.textContent = "Video chưa tải được. Con tải lại trang để hệ thống tự mở lại ở tốc độ 0,6×.";
-    const link = document.createElement("a");
-    link.className = "video-link";
-    link.href = driveViewUrl(shell.dataset.driveId);
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = "▶ Mở video";
-    card.append(title, note, link);
+    if (shell.dataset.mediaUrl) {
+      const retry = document.createElement("button");
+      retry.className = "inline-button";
+      retry.type = "button";
+      retry.textContent = "Tải lại video trong trang";
+      retry.addEventListener("click", () => {
+        shell.replaceChildren();
+        loadSlowPlayer(shell);
+      });
+      card.append(title, note, retry);
+    } else {
+      const link = document.createElement("a");
+      link.className = "video-link";
+      link.href = driveViewUrl(shell.dataset.driveId);
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "▶ Mở video";
+      card.append(title, note, link);
+    }
     shell.replaceChildren(card);
   }, {once: true});
   shell.replaceChildren(video);
@@ -113,7 +131,7 @@ function activateTab(name) {
   document.querySelector(`#${name}`)?.scrollIntoView({behavior:"smooth",block:"start"});
 }
 
-function stepCard(number, title, text, bullets, driveId, videoTitle, accent = "", playbackRate = 1) {
+function stepCard(number, title, text, bullets, driveId, videoTitle, accent = "", playbackRate = 1, mediaUrl = "") {
   return `
     <article class="lesson-card ${accent}" id="step-${number}">
       <div class="step-number">${number}</div>
@@ -122,7 +140,7 @@ function stepCard(number, title, text, bullets, driveId, videoTitle, accent = ""
         <p>${text}</p>
         <ul>${bullets.map((item) => `<li>${item}</li>`).join("")}</ul>
       </div>
-      <div class="video-shell" data-drive-id="${escapeHTML(driveId)}" data-title="${escapeHTML(videoTitle)}" data-playback-rate="${playbackRate}"></div>
+      <div class="video-shell" data-drive-id="${escapeHTML(driveId)}" data-title="${escapeHTML(videoTitle)}" data-playback-rate="${playbackRate}" data-media-url="${escapeHTML(mediaUrl)}"></div>
     </article>`;
 }
 
@@ -159,7 +177,7 @@ function renderLesson(lesson) {
       </div>
 
       ${stepCard(1,"Xem bản gốc","Con xem trọn tập để hiểu câu chuyện, giọng điệu và biểu cảm của từng nhân vật.",["Chưa cần dừng từng câu.","Quan sát khẩu hình và nét mặt.","Có thể xem lại nhiều lần."],lesson.videos[0],`Peppa ${lesson.number} - bản gốc`)}
-      ${stepCard(2,"Luyện với bản chậm","Con nghe từng câu ở tốc độ 0,6×, dừng lại khi cần và nói theo đúng cách nhân vật thể hiện.",["Giữ rõ trọng âm và âm cuối.","Bắt chước nối âm, nhịp và cảm xúc.","Luyện một câu nhiều lần nếu chưa khớp."],lesson.videos[0],`Peppa ${lesson.number} - bản chậm 0,6×`,"accent-card",SLOW_PLAYBACK_RATE)}
+      ${stepCard(2,"Luyện với bản chậm","Con nghe từng câu ở tốc độ 0,6×, dừng lại khi cần và nói theo đúng cách nhân vật thể hiện.",["Giữ rõ trọng âm và âm cuối.","Bắt chước nối âm, nhịp và cảm xúc.","Luyện một câu nhiều lần nếu chưa khớp."],lesson.videos[0],`Peppa ${lesson.number} - bản chậm 0,6×`,"accent-card",SLOW_PLAYBACK_RATE,mobileMediaUrl(lesson.number))}
       ${stepCard(3,"Lồng tiếng","Con bật bản đã tách giọng và nói thay nhân vật. Mục tiêu là vào câu đúng lúc, nói rõ và có biểu cảm.",["Không đọc đều như học thuộc lòng.","Nhìn hình để vào câu đúng nhịp.","Luyện ổn rồi mới quay bài."],lesson.videos[2],`Peppa ${lesson.number} - bản tách giọng`)}
 
       <div class="submit-card">
