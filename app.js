@@ -20,7 +20,7 @@ function driveMediaUrl(id) {
 }
 
 function slowMediaUrl(number) {
-  return `${location.origin}/peppa-slow-media/peppa-${number}.mp4?v=2`;
+  return `https://mstrangtrieueducation-droid.github.io/peppa-slow-universal/peppa-${number}.mp4?v=1`;
 }
 
 function loadInlinePlayer(shell) {
@@ -36,15 +36,28 @@ function loadInlinePlayer(shell) {
 
 function loadSlowPlayer(shell) {
   if (shell.querySelector("video")) return;
+  const sourceUrl = shell.dataset.mediaUrl || driveMediaUrl(shell.dataset.driveId);
   const video = document.createElement("video");
-  video.crossOrigin = "anonymous";
-  video.src = shell.dataset.mediaUrl || driveMediaUrl(shell.dataset.driveId);
   video.title = shell.dataset.title;
   video.controls = true;
   video.playsInline = true;
+  video.setAttribute("playsinline", "");
+  video.setAttribute("webkit-playsinline", "");
   video.preload = "metadata";
 
-  video.addEventListener("error", () => {
+  let automaticRetries = 0;
+  const handleError = () => {
+    if (shell.dataset.mediaUrl && automaticRetries < 2) {
+      automaticRetries += 1;
+      const retryUrl = new URL(sourceUrl, location.href);
+      retryUrl.searchParams.set("retry", `${automaticRetries}-${Date.now()}`);
+      setTimeout(() => {
+        video.src = retryUrl.href;
+        video.load();
+      }, automaticRetries * 300);
+      return;
+    }
+    video.removeEventListener("error", handleError);
     const card = document.createElement("div");
     card.className = "video-fallback";
     const title = document.createElement("strong");
@@ -71,8 +84,11 @@ function loadSlowPlayer(shell) {
       card.append(title, note, link);
     }
     shell.replaceChildren(card);
-  }, {once: true});
+  };
+  video.addEventListener("error", handleError);
   shell.replaceChildren(video);
+  video.src = sourceUrl;
+  video.load();
 }
 
 function renderVideo(shell) {
