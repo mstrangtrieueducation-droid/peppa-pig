@@ -43,17 +43,18 @@ function loadSlowPlayer(shell) {
 
   const setSlowRate = () => {
     video.defaultPlaybackRate = rate;
-    video.playbackRate = rate;
+    if (Math.abs(video.playbackRate - rate) > 0.01) video.playbackRate = rate;
   };
   setSlowRate();
-  video.addEventListener("loadedmetadata", setSlowRate, {once: true});
+  ["loadedmetadata", "loadeddata", "canplay", "play", "playing", "ratechange"].forEach((eventName) =>
+    video.addEventListener(eventName, setSlowRate));
   video.addEventListener("error", () => {
     const card = document.createElement("div");
     card.className = "video-fallback";
     const title = document.createElement("strong");
     title.textContent = shell.dataset.title;
     const note = document.createElement("p");
-    note.textContent = "Nếu video chưa tải được, con mở lại video rồi chọn tốc độ 0,6× trong trình phát.";
+    note.textContent = "Video chưa tải được. Con tải lại trang để hệ thống tự mở lại ở tốc độ 0,6×.";
     const link = document.createElement("a");
     link.className = "video-link";
     link.href = driveViewUrl(shell.dataset.driveId);
