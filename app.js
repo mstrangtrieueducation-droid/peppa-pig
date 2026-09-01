@@ -1,6 +1,5 @@
 const MOBILE_QUERY = "(max-width: 900px), (pointer: coarse)";
 const SLOW_PLAYBACK_RATE = 0.6;
-const MOBILE_MEDIA_LESSONS = new Set(["02"]);
 
 function escapeHTML(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({
@@ -22,8 +21,7 @@ function driveMediaUrl(id) {
 }
 
 function mobileMediaUrl(number) {
-  if (!MOBILE_MEDIA_LESSONS.has(number)) return "";
-  return `${location.origin}/peppa-media/peppa-${number}.mp4?v=1`;
+  return `${location.origin}/peppa-media/peppa-${number}.mp4?v=2`;
 }
 
 function loadInlinePlayer(shell) {
