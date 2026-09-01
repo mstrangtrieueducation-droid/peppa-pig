@@ -1,5 +1,4 @@
 const MOBILE_QUERY = "(max-width: 900px), (pointer: coarse)";
-const SLOW_PLAYBACK_RATE = 0.6;
 
 function escapeHTML(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({
@@ -20,8 +19,8 @@ function driveMediaUrl(id) {
   return `https://drive.usercontent.google.com/download?id=${encodeURIComponent(id)}&export=download&confirm=t`;
 }
 
-function mobileMediaUrl(number) {
-  return `${location.origin}/peppa-media/peppa-${number}.mp4?v=2`;
+function slowMediaUrl(number) {
+  return `${location.origin}/peppa-slow-media/peppa-${number}.mp4?v=2`;
 }
 
 function loadInlinePlayer(shell) {
@@ -37,7 +36,6 @@ function loadInlinePlayer(shell) {
 
 function loadSlowPlayer(shell) {
   if (shell.querySelector("video")) return;
-  const rate = Number(shell.dataset.playbackRate) || SLOW_PLAYBACK_RATE;
   const video = document.createElement("video");
   video.crossOrigin = "anonymous";
   video.src = shell.dataset.mediaUrl || driveMediaUrl(shell.dataset.driveId);
@@ -46,20 +44,13 @@ function loadSlowPlayer(shell) {
   video.playsInline = true;
   video.preload = "metadata";
 
-  const setSlowRate = () => {
-    video.defaultPlaybackRate = rate;
-    if (Math.abs(video.playbackRate - rate) > 0.01) video.playbackRate = rate;
-  };
-  setSlowRate();
-  ["loadedmetadata", "loadeddata", "canplay", "play", "playing", "ratechange"].forEach((eventName) =>
-    video.addEventListener(eventName, setSlowRate));
   video.addEventListener("error", () => {
     const card = document.createElement("div");
     card.className = "video-fallback";
     const title = document.createElement("strong");
     title.textContent = shell.dataset.title;
     const note = document.createElement("p");
-    note.textContent = "Video chưa tải được. Con tải lại trang để hệ thống tự mở lại ở tốc độ 0,6×.";
+    note.textContent = "Video bản chậm chưa tải được. Con bấm tải lại để mở lại ngay trong trang.";
     if (shell.dataset.mediaUrl) {
       const retry = document.createElement("button");
       retry.className = "inline-button";
@@ -85,7 +76,7 @@ function loadSlowPlayer(shell) {
 }
 
 function renderVideo(shell) {
-  if (Number(shell.dataset.playbackRate) !== 1) {
+  if (shell.dataset.mediaUrl) {
     loadSlowPlayer(shell);
     return;
   }
@@ -175,7 +166,7 @@ function renderLesson(lesson) {
       </div>
 
       ${stepCard(1,"Xem bản gốc","Con xem trọn tập để hiểu câu chuyện, giọng điệu và biểu cảm của từng nhân vật.",["Chưa cần dừng từng câu.","Quan sát khẩu hình và nét mặt.","Có thể xem lại nhiều lần."],lesson.videos[0],`Peppa ${lesson.number} - bản gốc`)}
-      ${stepCard(2,"Luyện với bản chậm","Con nghe từng câu ở tốc độ 0,6×, dừng lại khi cần và nói theo đúng cách nhân vật thể hiện.",["Giữ rõ trọng âm và âm cuối.","Bắt chước nối âm, nhịp và cảm xúc.","Luyện một câu nhiều lần nếu chưa khớp."],lesson.videos[0],`Peppa ${lesson.number} - bản chậm 0,6×`,"accent-card",SLOW_PLAYBACK_RATE,mobileMediaUrl(lesson.number))}
+      ${stepCard(2,"Luyện với bản chậm","Video đã được làm chậm sẵn xuống 0,6×. Trên điện thoại, trình phát có thể hiện 1×; đây vẫn là tốc độ đúng của bản chậm.",["Giữ rõ trọng âm và âm cuối.","Bắt chước nối âm, nhịp và cảm xúc.","Luyện một câu nhiều lần nếu chưa khớp."],lesson.videos[0],`Peppa ${lesson.number} - bản chậm 0,6×`,"accent-card",1,slowMediaUrl(lesson.number))}
       ${stepCard(3,"Lồng tiếng","Con bật bản đã tách giọng và nói thay nhân vật. Mục tiêu là vào câu đúng lúc, nói rõ và có biểu cảm.",["Không đọc đều như học thuộc lòng.","Nhìn hình để vào câu đúng nhịp.","Luyện ổn rồi mới quay bài."],lesson.videos[2],`Peppa ${lesson.number} - bản tách giọng`)}
 
       <div class="submit-card">
