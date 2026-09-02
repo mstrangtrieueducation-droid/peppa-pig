@@ -21,6 +21,10 @@ function slowMediaUrl(number) {
   return `https://mstrangtrieueducation-droid.github.io/peppa-slow-universal/peppa-${number}.mp4?v=1`;
 }
 
+function originalMediaUrl(number) {
+  return `https://mstrangtrieueducation-droid.github.io/peppa-media/peppa-${number}.mp4?v=1`;
+}
+
 function loadInlinePlayer(shell) {
   if (shell.querySelector("iframe")) return;
   const iframe = document.createElement("iframe");
@@ -167,7 +171,7 @@ function renderLesson(lesson) {
         </div>
       </div>
 
-      ${stepCard(1,"Xem bản gốc","Con xem trọn tập để hiểu câu chuyện, giọng điệu và biểu cảm của từng nhân vật.",["Chưa cần dừng từng câu.","Quan sát khẩu hình và nét mặt.","Có thể xem lại nhiều lần."],lesson.videos[0],`Peppa ${lesson.number} - bản gốc`)}
+      ${stepCard(1,"Xem bản gốc","Con xem trọn tập để hiểu câu chuyện, giọng điệu và biểu cảm của từng nhân vật.",["Chưa cần dừng từng câu.","Quan sát khẩu hình và nét mặt.","Có thể xem lại nhiều lần."],lesson.videos[0],`Peppa ${lesson.number} - bản gốc`,"",1,originalMediaUrl(lesson.number))}
       ${stepCard(2,"Luyện với bản chậm","Video đã được làm chậm sẵn xuống 0,6×. Trên điện thoại, trình phát có thể hiện 1×; đây vẫn là tốc độ đúng của bản chậm.",["Giữ rõ trọng âm và âm cuối.","Bắt chước nối âm, nhịp và cảm xúc.","Luyện một câu nhiều lần nếu chưa khớp."],lesson.videos[0],`Peppa ${lesson.number} - bản chậm 0,6×`,"accent-card",1,slowMediaUrl(lesson.number))}
       ${stepCard(3,"Lồng tiếng","Con bật bản đã tách giọng và nói thay nhân vật. Mục tiêu là vào câu đúng lúc, nói rõ và có biểu cảm.",["Không đọc đều như học thuộc lòng.","Nhìn hình để vào câu đúng nhịp.","Luyện ổn rồi mới quay bài."],lesson.videos[2],`Peppa ${lesson.number} - bản tách giọng`)}
 
