@@ -5,7 +5,7 @@ function escapeHTML(value) {
 }
 
 function lessonNumber() {
-  const raw = new URLSearchParams(location.search).get("lesson") || "01";
+  const raw = window.OPAQUE_LESSON_NUMBER || new URLSearchParams(location.search).get("lesson") || "01";
   return String(Number(raw)).padStart(2, "0");
 }
 
